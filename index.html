@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hàbits Saludables</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fdfcfa;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .arrow {
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 5px;
+      user-select: none;
+    }
+
+    .habit {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 4px solid;
+      margin-right: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+    }
+
+    .text {
+      font-size: 1.1em;
+    }
+
+    .completed {
+      background-color: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="arrow" id="prevDay">←</div>
+    <div id="dateDisplay"></div>
+    <div class="arrow" id="nextDay">→</div>
+  </div>
+
+  <div id="habits"></div>
+
+  <script>
+    const habits = [
+      { color: '#ec1f24', text: 'Caminar 8000 passes', key: 'habit1' },
+      { color: '#f7971e', text: 'Menjar 5 fruites o verdures', key: 'habit2' },
+      { color: '#f5ea16', text: 'Prendre medicació i suplements', key: 'habit3' },
+      { color: '#119a48', text: 'Exercici de força (últimes 72h)', key: 'habit4' },
+      { color: '#3954a3', text: 'Dormir 8h (abans de les 23h)', key: 'habit5' },
+      { color: '#c5278e', text: 'Haver fet 4-7-8', key: 'habit6' }
+    ];
+
+    const monthsCAT = ['GENER', 'FEBRER', 'MARÇ', 'ABRIL', 'MAIG', 'JUNY', 'JULIOL', 'AGOST', 'SETEMBRE', 'OCTUBRE', 'NOVEMBRE', 'DESEMBRE'];
+    let currentDate = new Date();
+
+    const habitsContainer = document.getElementById('habits');
+    const dateDisplay = document.getElementById('dateDisplay');
+    const prevDayBtn = document.getElementById('prevDay');
+    const nextDayBtn = document.getElementById('nextDay');
+
+    function formatDateKey(date) {
+      return date.toISOString().split('T')[0]; // yyyy-mm-dd
+    }
+
+    function updateDateDisplay() {
+      const day = currentDate.getDate();
+      const month = monthsCAT[currentDate.getMonth()];
+      dateDisplay.textContent = `${day} ${month}`;
+    }
+
+    function renderHabits() {
+      habitsContainer.innerHTML = '';
+      const dateKey = formatDateKey(currentDate);
+
+      habits.forEach((habit, index) => {
+        const div = document.createElement('div');
+        div.className = 'habit';
+
+        const circle = document.createElement('div');
+        circle.className = 'circle';
+        circle.style.borderColor = habit.color;
+        circle.style.color = habit.color;
+
+        const saved = localStorage.getItem(`${dateKey}-${habit.key}`);
+        if (saved === 'true') {
+          circle.classList.add('completed');
+        }
+
+        circle.addEventListener('click', () => {
+          const completed = circle.classList.toggle('completed');
+          localStorage.setItem(`${dateKey}-${habit.key}`, completed);
+        });
+
+        const text = document.createElement('div');
+        text.className = 'text';
+        text.innerText = habit.text;
+
+        div.appendChild(circle);
+        div.appendChild(text);
+        habitsContainer.appendChild(div);
+      });
+    }
+
+    function changeDay(offset) {
+      currentDate.setDate(currentDate.getDate() + offset);
+      updateDateDisplay();
+      renderHabits();
+    }
+
+    prevDayBtn.addEventListener('click', () => changeDay(-1));
+    nextDayBtn.addEventListener('click', () => changeDay(1));
+
+    // Inicialitzar
+    updateDateDisplay();
+    renderHabits();
+  </script>
+</body>
+</html>
